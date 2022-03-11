@@ -1,0 +1,7 @@
+services:
+  web:
+    build: .docker/web
+    working_dir: /src/web
+    user: "1000"
+    volumes:
+      - ./web:/src/web
