@@ -7,7 +7,7 @@ services:
     volumes:
       - ./web:/src/web
     ports:
-      - "3000:4173"
+      - "3000:3000"
     command: ["npm", "run", "dev"]
 
   api:
@@ -15,39 +15,37 @@ services:
     volumes:
       - ./api:/var/task
     working_dir: /var/task
-    ports:
-      - "8080:8000"
+    ports: 
+      - "8000:8000"
     user: "${COMPOSE_UID:-1000}:${COMPOSE_GID:-1000}"
     environment:
       - HOME=/tmp
-    command: ["uvicorn", "main:router", "--reload"]
-    entrypoint: ["poetry", "run"]
-  
-  # pgadmin:
-  #   container_name: pgadmin
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
-  #     - PGADMIN_DEFAULT_PASSWORD=admin
-  #   ports:
-  #     - 5050:80
-  #   depends_on:
-  #     - db
-  #   logging:
-  #     driver: none
+    command: ["uvicorn", "main:router", "--reload", "--host=0.0.0.0"]
+    entrypoint: ['poetry', 'run']
 
-  # db:
-  #   build: ./.docker/db
-  #   volumes:
-  #     - db-data:/var/lib/postgresql/data
-  #   ports:
-  #     - 127.0.0.1:4003:5432
-  #   environment:
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #     - POSTGRES_DB=fastapi_project
-  #     - POSTGRES_HOST=127.0.0.1
-    
+  db:
+    build: ./.docker/db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "4000:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5000:80"
+    depends_on:
+      - db
+    logging:
+      driver: none
+
 volumes:
   db-data:
     driver: local
