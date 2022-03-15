@@ -6,5 +6,5 @@ services:
     volumes:
       - ./web:/src/web
     ports:
-      - 3333:3000
-    command: ["npm", "run", "serve"]
+      - 3333:4173
+    command: ["npm", "run", "dev"]

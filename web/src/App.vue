@@ -1,23 +1,33 @@
 <template>
-  <v-app>
-    <v-main>
-      <HelloWorld/>
-    </v-main>
-  </v-app>
+    <v-app>
+        <v-app-bar>
+            <v-app-bar-title>
+                <router-link class="menu-button" to ="/">Dashboard</router-link>
+            </v-app-bar-title>
+
+            <v-app-bar-title>
+                <router-link class="menu-button" to ="/equipment">Equipment</router-link>
+            </v-app-bar-title>
+
+            <v-app-bar-title>
+                <router-link class="menu-button" to ="/employees">Employees</router-link>
+            </v-app-bar-title>
+        </v-app-bar>
+
+        <v-main>
+            <v-container fluid>
+                <router-view></router-view>
+            </v-container>
+        </v-main>
+    </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-
-  components: {
-    HelloWorld,
-  },
-
-  data: () => ({
-    //
-  }),
-}
 </script>
+
+<style scoped>
+.menu-button {
+    text-decoration: none;
+    color: inherit;
+}
+</style>
