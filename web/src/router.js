@@ -1,12 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Dashboard from './components/Dashboard.vue'
-import Equipment from './components/Equipment.vue'
-import Employees from './components/Employees.vue'
+import Dashboard from './views/Dashboard.vue'
 
 const routes = [
-    { path: '/', component: Dashboard },
-    { path: '/equipment', component: Equipment },
-    { path: '/employees', component: Employees }
+  { 
+    path: '/',
+    name: 'Dashboard',
+    component: Dashboard 
+  },
+  { 
+    path: '/equipment',
+    name: 'Equipment',
+    component: () => import('./views/Equipment.vue') 
+  },
+  { 
+    path: '/employees',
+    name: 'Employees',
+    component: () => import('./views/employees/Employees.vue')
+  }
 ]
 
 const router = createRouter({

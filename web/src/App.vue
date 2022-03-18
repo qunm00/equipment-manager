@@ -1,33 +1,58 @@
 <template>
-    <v-app>
-        <v-app-bar>
-            <v-app-bar-title>
-                <router-link class="menu-button" to ="/">Dashboard</router-link>
-            </v-app-bar-title>
+<v-app>
+  <v-app-bar
+    app
+    color="blue-grey"
+  >
+    <v-app-bar-nav-icon
+      v-show="lgAndUp ? false : true"
+      @click.stop="toggleNavDrawer"
+    ></v-app-bar-nav-icon>
+    <v-spacer></v-spacer>
+    <v-spacer></v-spacer>
+    <v-text-field
+      prepend-icon="mdi-magnify"
+    >
+    </v-text-field>
+  </v-app-bar>
 
-            <v-app-bar-title>
-                <router-link class="menu-button" to ="/equipment">Equipment</router-link>
-            </v-app-bar-title>
+  <v-navigation-drawer 
+    app
+    v-model="showNavDrawer"
+  >
+    <v-list>
+      <v-list-item title="Dashboard" :to="{ name: 'Dashboard' }"></v-list-item>
+      <v-list-item title="Equipment" :to="{ name: 'Equipment' }"></v-list-item>
+      <v-list-item title="Employees" :to="{ name: 'Employees' }"></v-list-item>
+    </v-list>
+  </v-navigation-drawer>
 
-            <v-app-bar-title>
-                <router-link class="menu-button" to ="/employees">Employees</router-link>
-            </v-app-bar-title>
-        </v-app-bar>
+  <v-main>
+    <v-container fluid>
+      <router-view></router-view>
+    </v-container>
+  </v-main>
 
-        <v-main>
-            <v-container fluid>
-                <router-view></router-view>
-            </v-container>
-        </v-main>
-    </v-app>
+  <v-footer app></v-footer>
+</v-app>
 </template>
 
 <script>
-</script>
+import { useDisplay } from 'vuetify'
+import { ref } from 'vue'
 
-<style scoped>
-.menu-button {
-    text-decoration: none;
-    color: inherit;
+export default {
+  setup() {
+    const { lgAndUp } = useDisplay()
+    const showNavDrawer = ref(lgAndUp.value)
+    const toggleNavDrawer = () => {
+      showNavDrawer.value = !showNavDrawer.value
+    }
+    return {
+      lgAndUp,
+      showNavDrawer,
+      toggleNavDrawer
+    }
+  }
 }
-</style>
+</script>
