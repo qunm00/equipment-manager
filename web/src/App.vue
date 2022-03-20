@@ -11,7 +11,10 @@
     <v-spacer></v-spacer>
     <v-spacer></v-spacer>
     <v-text-field
-      prepend-icon="mdi-magnify"
+      prepend-inner-icon="mdi-magnify"
+      filled
+      hide-details
+      label="Search employee"
     >
     </v-text-field>
   </v-app-bar>

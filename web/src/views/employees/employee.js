@@ -1,6 +1,10 @@
-const createEmployee = async (employeeData) => {
-  console.log('hello')
-  fetch('/api/employees', {
+const getEmployees = () => {
+  return fetch('api/employees')
+  .then(response => response.json())
+}
+
+const createEmployee = (employeeData) => {
+  return fetch('/api/employees', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -11,8 +15,8 @@ const createEmployee = async (employeeData) => {
   .catch(error => console.log(error))
 }
 
-const editEmployee = async (employeeId, employeeData) => {
-  fetch(`/api/employees/${employeeId}`, {
+const editEmployee = (employeeId, employeeData) => {
+  return fetch(`/api/employees/${employeeId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -23,8 +27,8 @@ const editEmployee = async (employeeId, employeeData) => {
   .catch(error => console.log(error))
 }
 
-const deleteEmployee = async () => {
-  fetch(`/api/employees/${employeeId}`, {
+const deleteEmployee = (employeeId) => {
+  return fetch(`/api/employees/${employeeId}`, {
     method: 'DELETE',
   })
   .then(response => console.log(response))
@@ -32,6 +36,7 @@ const deleteEmployee = async () => {
 }
 
 export {
+  getEmployees,
   createEmployee,
   editEmployee,
   deleteEmployee

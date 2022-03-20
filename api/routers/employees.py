@@ -47,4 +47,7 @@ def edit_employee(id :int, payload_: Employee):
 
 @router.delete('/api/employees/{id}')
 def delete_employee(id: int):
-    print('request received')
+    print(f'deleting employee {id}')
+    employee = Employees.get_by_id(id)
+    employee.delete_instance()
+    print(f'successfully delete employeee {id}')

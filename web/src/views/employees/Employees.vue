@@ -5,7 +5,7 @@
     <v-spacer></v-spacer>
     <v-btn
       color="primary"
-      @click="buttonClick({})"
+      @click="clickEditEmployee({})"
       id="add-button"
     >
       Add Employee
@@ -45,10 +45,9 @@
         </v-card-text>
 
         <v-card-actions>
-          <!-- rename buttonClick -->
           <v-btn
             color="success"
-            @click="buttonClick(employee)"
+            @click="clickEditEmployee(employee)"
             id="edit-button"
           >
             <v-icon>mdi-pencil</v-icon>
@@ -56,7 +55,7 @@
           </v-btn>
           <v-btn
             color="error"
-            @click="confirmDelete(employee)"
+            @click="clickDeleteEmployee(employee)"
           >
             <v-icon>mdi-delete</v-icon>
             Delete
@@ -67,21 +66,27 @@
   </v-row>
 </v-container>
 
-<!-- change displayDialog to something elaborate -->
-<v-dialog v-model="displayDialog">
-  <v-card>
-    <EmployeeForm
-      :employee="employee"
-      :cardTitle="formTitle" 
-      @eventSubmitEmployeeForm="fetchEmployees"
-      @closeDialog="toggleDialog"
-    />
-  </v-card>
+<v-dialog v-model="displayEditForm" style="z-index: 3000;"> 
+  <EmployeeForm
+    :employee="employee"
+    :cardTitle="formTitle" 
+    @eventSubmitEmployeeForm="fetchEmployees"
+    @closeDialog="toggleEditDialog"
+  />
 </v-dialog>
 
-<v-dialog v-model="displayDeleteConfirmation">
+<v-dialog v-model="displayDeleteDialog" style="z-index: 3000;">
   <v-card>
-    <v-card-title>{{`Delete`}}</v-card-title>
+    <v-card-title>{{`Delete employee ${employee.nickname}`}}</v-card-title>
+    <v-card-text>
+        <span>{{`${employee.fullname}`}}</span><br>
+        <span><v-icon>mdi-phone</v-icon>{{` ${employee.mobile}`}}</span><br>
+        <span><v-icon>mdi-email</v-icon>{{` ${employee.email}`}}</span><br>
+    </v-card-text>
+    <v-card-actions>
+      <v-btn @click="confirmDeleteEmployee">Yes</v-btn>
+      <v-btn @click="toggleDeleteDialog">No</v-btn>
+    </v-card-actions>
   </v-card>
 </v-dialog>
 </template>
@@ -90,37 +95,47 @@
 <script>
 import { onMounted, ref } from 'vue'
 import EmployeeForm from './EmployeeForm.vue'
-import { deleteEmployee } from './employee'
+import { getEmployees, deleteEmployee } from './employee'
 
 export default {
   setup() {
     const employees = ref(null)
     const employee = ref({})
-    const displayDialog = ref(false)
+    const displayEditForm = ref(false)
+    const displayDeleteDialog = ref(false)
     const formTitle = ref('')
-    const displayDeleteConfirmation = ref(false)
-
-    const buttonClick = (chosenOne) => {
-      formTitle.value = chosenOne.id ? `Edit ${chosenOne.nickname} information` : 'Add a new employee'
-      employee.value = chosenOne 
-      displayDialog.value = !displayDialog.value
-    }
 
     const fetchEmployees = async () => {
       try {
-        employees.value = await (await fetch('/api/employees')).json()
+        employees.value = await getEmployees()
       } catch (error) {
         console.log(error)
       }
     }
 
-    const toggleDialog = () => {
-      displayDialog.value= !displayDialog.value
+    const clickEditEmployee = (chosenOne) => {
+      formTitle.value = chosenOne.id ? `Edit ${chosenOne.nickname} information` : 'Add a new employee'
+      employee.value = chosenOne 
+      toggleEditDialog()
     }
 
-    const confirmDelete = (employeeId) => {
-      console.log(employee.value)
-      displayDeleteConfirmation.value = !displayDeleteConfirmation.value
+    const toggleEditDialog = () => {
+      displayEditForm.value= !displayEditForm.value
+    }
+
+    const toggleDeleteDialog = () => {
+      displayDeleteDialog.value= !displayDeleteDialog.value
+    }
+
+    const clickDeleteEmployee = (chosenOne) => {
+      employee.value=chosenOne
+      toggleDeleteDialog()
+    }
+
+    const confirmDeleteEmployee = async () => {
+      await deleteEmployee(employee.value.id)
+      await fetchEmployees()
+      toggleDeleteDialog()
     }
 
     onMounted(() => {
@@ -131,12 +146,14 @@ export default {
       employees,
       employee,
       fetchEmployees,
-      displayDialog,
-      buttonClick,
+      clickEditEmployee,
+      displayEditForm,
       formTitle,
-      toggleDialog,
-      confirmDelete,
-      displayDeleteConfirmation
+      toggleEditDialog,
+      clickDeleteEmployee,
+      displayDeleteDialog,
+      toggleDeleteDialog,
+      confirmDeleteEmployee
     };
   },
 
