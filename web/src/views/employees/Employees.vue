@@ -37,7 +37,7 @@
 <v-container>
   <v-row wrap>
     <v-col
-      v-for="employee in employees"
+      v-for="employee in filteredEmployees"
       :key="employee.id"
       cols="12"
       sm="6"
@@ -89,7 +89,7 @@
 
 <v-dialog v-model="displayEditForm" id="edit-form" style="z-index: 3000;"> 
   <EmployeeForm
-    :employee="employee"
+    :employee="data.employee"
     :cardTitle="formTitle" 
     @eventSubmitEmployeeForm="fetchEmployees"
     @closeDialog="toggleEditDialog"
@@ -98,11 +98,11 @@
 
 <v-dialog v-model="displayDeleteDialog" style="z-index: 3000;">
   <v-card>
-    <v-card-title>{{`Delete employee ${employee.nickname}`}}</v-card-title>
+    <v-card-title>{{`Delete employee ${data.employee.nickname}`}}</v-card-title>
     <v-card-text>
         <span>{{`${employee.fullname}`}}</span><br>
-        <span><v-icon>mdi-phone</v-icon>{{` ${employee.mobile}`}}</span><br>
-        <span><v-icon>mdi-email</v-icon>{{` ${employee.email}`}}</span><br>
+        <span><v-icon>mdi-phone</v-icon>{{` ${data.employee.mobile}`}}</span><br>
+        <span><v-icon>mdi-email</v-icon>{{` ${data.employee.email}`}}</span><br>
     </v-card-text>
     <v-card-actions>
       <v-btn @click="confirmDeleteEmployee">Yes</v-btn>
@@ -114,57 +114,50 @@
 
 
 <script>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, computed, ref, reactive } from 'vue'
 import EmployeeForm from './EmployeeForm.vue'
 import { getEmployees, deleteEmployee } from './employee'
 
 export default {
   setup() {
-    const employees = ref(null)
-    const employee = ref({})
+    const data = reactive({
+      'employees': [],
+      'employee': null
+    })
     const displayEditForm = ref(false)
     const displayDeleteDialog = ref(false)
     const formTitle = ref('')
-    const searchTerm = ref(null)
+    const searchTerm = ref('')
 
 
     const fetchEmployees = async () => {
-      console.log('fetchEmployees')
       try {
-        employees.value = await getEmployees()
+        data.employees = await getEmployees()
       } catch (error) {
         console.log(error)
       }
     }
 
-    // const filteredEmployees = computed(() => {
-    //   const copyEmployees = employees.value
-    //   // return employees.value.filter(employee => {
-    //   //   return employee.email.includes(searchTerm)
-    //   //     || employee.fullname.includes(searchTerm)
-    //   //     || employee.mobile.includes(searchTerm)
-    //   //     || employee.nickname.includes(searchTerm)
-    //   // })
-    // })
-
-    const filteredEmployees = () => {
-      const copyEmployees = employees.value
-      console.log('filteredEmployees')
-      console.log(copyEmployees)
-      console.log(employees)
-      employees.value.forEach(employee => {
-        console.log(employee)
+    const filteredEmployees = computed(() => {
+      if (searchTerm.value.length === 0) {
+        return data.employees
+      }
+      return data.employees.filter(employee => {
+        return employee.email.includes(searchTerm.value)
+          || employee.fullname.includes(searchTerm.value)
+          || employee.mobile.includes(searchTerm.value)
+          || employee.nickname.includes(searchTerm.value)
       })
+    })
+
+    const toggleEditDialog = () => {
+      displayEditForm.value = !displayEditForm.value
     }
 
     const clickEditEmployee = (chosenOne) => {
       formTitle.value = chosenOne.id ? `Edit ${chosenOne.nickname} information` : 'Add a new employee'
-      employee.value = chosenOne 
+      data.employee = chosenOne 
       toggleEditDialog()
-    }
-
-    const toggleEditDialog = () => {
-      displayEditForm.value = !displayEditForm.value
     }
 
     const toggleDeleteDialog = () => {
@@ -172,31 +165,30 @@ export default {
     }
 
     const clickDeleteEmployee = (chosenOne) => {
-      employee.value = chosenOne
+      data.employee = chosenOne
       toggleDeleteDialog()
     }
 
     const confirmDeleteEmployee = async () => {
-      await deleteEmployee(employee.value.id)
+      await deleteEmployee(data.employee.id)
       await fetchEmployees()
       toggleDeleteDialog()
     }
 
     onMounted(() => {
       fetchEmployees()
-      filteredEmployees()
     })
 
     return {
-      employees,
-      employee,
+      data,
+
       fetchEmployees,
       searchTerm,
-      // filteredEmployees,
+      filteredEmployees,
 
       formTitle,
-      displayEditForm,
       clickEditEmployee,
+      displayEditForm,
       toggleEditDialog,
 
       clickDeleteEmployee,
@@ -213,10 +205,6 @@ export default {
 </script>
 
 <style>
-/* :deep(.v-overlay__content) {
-  max-height: 100%;
-} */
-
 body .v-overlay-container .v-dialog .v-overlay__content {
   max-height: 100%;
 }
