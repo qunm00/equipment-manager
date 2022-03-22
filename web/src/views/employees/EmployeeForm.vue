@@ -1,7 +1,17 @@
 <template>
+<v-alert
+  v-model="displayAlert"
+  closable
+  prominent
+  rounded="pill"
+  type="error"
+>
+  {{ validationMessage }}
+</v-alert>
 <v-container
 >
   <v-card>
+
     <v-card-title>
       {{ cardTitle }}
     </v-card-title>
@@ -9,10 +19,9 @@
       @submit="onSubmit" 
       ref="formRef" 
       v-model="valid"
-      lazy-validation
     >
       <v-container>
-        <v-row>
+        <v-row justify-sm="space-between">
           <v-col cols="12">
             <v-checkbox 
               label="Active" 
@@ -39,13 +48,13 @@
             <v-text-field 
               label="Mobile" 
               v-model="employeeData.mobile"
-              :rules="[v => /[0-9]{9,10}/.test(v) || 'Mobile phone is invalid']"
+              :rules="[v => /[0-9]{9,10}/.test(v) || 'Mobile number must be 9 or 10 digits']"
             ></v-text-field>
           </v-col>
           <v-col cols="12">
             <v-text-field 
               label="Email" 
-              :rules="[v => /.+@.+\..+/.test(v) || 'Email is invalid']"
+              :rules="[v => /.+@.+\..+/.test(v) || 'Email must be formatted like examplel@mail.com']"
               v-model="employeeData.email"
             ></v-text-field>
           </v-col>
@@ -71,29 +80,36 @@ import { createEmployee, editEmployee } from './employee'
 
 export default {
   props: ['employee', 'cardTitle'],
+  emits: ['closeDialog', 'eventSubmitEmployeeForm'],
 
   setup(props, context) {
     const employeeData = ref({})
     const valid = ref(false)
     const formRef = ref(null)
+    const displayAlert = ref(false)
+    const validationMessage = ref('')
 
     onMounted(() => {
       setData()
     })
 
     const onSubmit = async () => {
-      valid.value  = (await formRef.value.validate()).valid
-      if (!valid) {
-        return
+      try {
+        if (employeeData.value.id === undefined) {
+          await createEmployee(employeeData.value)
+        } else {
+          await editEmployee(props.employee.id, employeeData.value)
+        }
+        context.emit('closeDialog')
+        context.emit('eventSubmitEmployeeForm')
+      } catch (error) {
+        validationMessage.value = (await error.json()).detail
+        displayAlert.value = true 
+        setTimeout(() => { 
+          displayAlert.value = false
+          setData()
+        }, 3000)
       }
-      if (employeeData.value.id === undefined) {
-        await createEmployee(employeeData.value)
-      } else {
-        await editEmployee(props.employee.id, employeeData.value)
-      }
-      setData()
-      context.emit('closeDialog')
-      context.emit('eventSubmitEmployeeForm')
     }
 
     const setData = () => {
@@ -111,8 +127,16 @@ export default {
       employeeData,
       onSubmit,
       formRef,
-      valid
+      valid,
+      displayAlert,
+      validationMessage
     }
   },
 }
 </script>
+
+<style scoped>
+:deep(.v-input__details) {
+  margin-bottom: 0;
+}
+</style>

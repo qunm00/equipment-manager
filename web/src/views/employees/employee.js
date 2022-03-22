@@ -1,38 +1,42 @@
-const getEmployees = () => {
-  return fetch('api/employees')
-  .then(response => response.json())
+const handleException = (response) => {
+  if (!response.ok) {
+    throw response
+  }
+  return response
 }
 
-const createEmployee = (employeeData) => {
-  return fetch('/api/employees', {
+const getEmployees = async () => {
+  const response = await fetch('api/employees')
+  return await response.json()
+}
+
+const createEmployee = async (employeeData) => {
+  const response = await fetch('/api/employees', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(employeeData)
   })
-  .then(response => console.log(response))
-  .catch(error => console.log(error))
+  return handleException(response)
 }
 
-const editEmployee = (employeeId, employeeData) => {
-  return fetch(`/api/employees/${employeeId}`, {
-    method: 'PUT',
+const editEmployee = async (employeeId, employeeData) => {
+  const response = await fetch(`/api/employees/${employeeId}`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(employeeData)
   })
-  .then(response => console.log(response))
-  .catch(error => console.log(error))
+  return handleException(response)
+
 }
 
-const deleteEmployee = (employeeId) => {
-  return fetch(`/api/employees/${employeeId}`, {
+const deleteEmployee = async (employeeId) => {
+  await fetch(`/api/employees/${employeeId}`, {
     method: 'DELETE',
   })
-  .then(response => console.log(response))
-  .catch(error => console.log(error))
 }
 
 export {

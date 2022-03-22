@@ -8,10 +8,17 @@
   <v-container>
     <v-form v-model="valid" ref="form" lazy-validation>
       <v-text-field></v-text-field>
-      <v-btn>Submit</v-btn>
+      <v-btn prepend-icon="mdi-account-group">Submit</v-btn>
     </v-form>
   </v-container>
 </form>
+<div class="text-center ma-2">
+  <v-btn
+    @click="openAlert"
+  >
+    Open Alert
+  </v-btn>
+</div>
 </template>
 
 <script>
@@ -28,10 +35,15 @@ export default {
       console.log(form.value)
     })
 
+    const openAlert = () => {
+      alert('Something')
+    }
+
     return {
       input,
       form,
-      valid
+      valid,
+      openAlert
     }
   },
 }

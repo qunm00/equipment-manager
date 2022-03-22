@@ -1,7 +1,6 @@
 <template>
 <v-container>
   <v-row>
-    <h1>Employees</h1>
     <v-spacer></v-spacer>
     <v-btn
       color="primary"
@@ -19,8 +18,8 @@
       v-for="employee in employees"
       :key="employee.id"
       cols="12"
-      md="6"
-      lg="4"
+      sm="6"
+      lg="3"
     >
       <v-card>
         <v-card-header>
@@ -66,7 +65,7 @@
   </v-row>
 </v-container>
 
-<v-dialog v-model="displayEditForm" style="z-index: 3000;"> 
+<v-dialog v-model="displayEditForm" id="edit-form" style="z-index: 3000;"> 
   <EmployeeForm
     :employee="employee"
     :cardTitle="formTitle" 
@@ -120,15 +119,15 @@ export default {
     }
 
     const toggleEditDialog = () => {
-      displayEditForm.value= !displayEditForm.value
+      displayEditForm.value = !displayEditForm.value
     }
 
     const toggleDeleteDialog = () => {
-      displayDeleteDialog.value= !displayDeleteDialog.value
+      displayDeleteDialog.value = !displayDeleteDialog.value
     }
 
     const clickDeleteEmployee = (chosenOne) => {
-      employee.value=chosenOne
+      employee.value = chosenOne
       toggleDeleteDialog()
     }
 
@@ -146,10 +145,12 @@ export default {
       employees,
       employee,
       fetchEmployees,
-      clickEditEmployee,
-      displayEditForm,
+
       formTitle,
+      displayEditForm,
+      clickEditEmployee,
       toggleEditDialog,
+
       clickDeleteEmployee,
       displayDeleteDialog,
       toggleDeleteDialog,
@@ -162,3 +163,28 @@ export default {
   }
 }
 </script>
+
+<style>
+/* ::v-deep(.v-dialog .v-overlay__content) {
+  max-height: 100%;
+}
+:deep(.v-dialog .v-overlay__content) {
+  max-height: 100%;
+}
+
+::v-deep(.v-overlay__content) {
+  max-height: 100%;
+}
+
+:deep(.v-overlay__content) {
+  max-height: 100%;
+}
+
+:deep(.v-overlay-container) {
+  left: 50px;
+} */
+
+body .v-overlay-container .v-dialog .v-overlay__content {
+  max-height: 100%;
+}
+</style>

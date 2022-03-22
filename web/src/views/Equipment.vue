@@ -1,5 +1,4 @@
 <template>
-<h1>Equipment</h1>
 <v-container fluid>
   <v-row>
     <v-col
