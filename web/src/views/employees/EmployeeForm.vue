@@ -21,7 +21,7 @@
       v-model="valid"
     >
       <v-container>
-        <v-row justify-sm="space-between">
+        <v-row>
           <v-col cols="12">
             <v-checkbox 
               label="Active" 

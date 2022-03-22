@@ -1,14 +1,36 @@
 <template>
 <v-container>
-  <v-row>
-    <v-spacer></v-spacer>
-    <v-btn
-      color="primary"
-      @click="clickEditEmployee({})"
-      id="add-button"
+  <v-row
+    align="center"
+    justify="end"
+  >
+    <v-col
+      cols="12"
+      md="4"
     >
-      Add Employee
-    </v-btn>
+      <v-text-field
+        prepend-inner-icon="mdi-magnify"
+        label="Search employees"
+        hide-details
+        density="compact"
+        v-model="searchTerm"
+      >
+      </v-text-field>
+    </v-col>
+    <v-col
+     cols="12"
+     md="3"
+     lg="2"
+     align="center"
+    >
+      <v-btn
+        color="primary"
+        @click="clickEditEmployee({})"
+        id="add-button"
+      >
+        Add Employee
+      </v-btn>
+    </v-col>
   </v-row>
 </v-container>
 
@@ -92,7 +114,7 @@
 
 
 <script>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import EmployeeForm from './EmployeeForm.vue'
 import { getEmployees, deleteEmployee } from './employee'
 
@@ -103,13 +125,36 @@ export default {
     const displayEditForm = ref(false)
     const displayDeleteDialog = ref(false)
     const formTitle = ref('')
+    const searchTerm = ref(null)
+
 
     const fetchEmployees = async () => {
+      console.log('fetchEmployees')
       try {
         employees.value = await getEmployees()
       } catch (error) {
         console.log(error)
       }
+    }
+
+    // const filteredEmployees = computed(() => {
+    //   const copyEmployees = employees.value
+    //   // return employees.value.filter(employee => {
+    //   //   return employee.email.includes(searchTerm)
+    //   //     || employee.fullname.includes(searchTerm)
+    //   //     || employee.mobile.includes(searchTerm)
+    //   //     || employee.nickname.includes(searchTerm)
+    //   // })
+    // })
+
+    const filteredEmployees = () => {
+      const copyEmployees = employees.value
+      console.log('filteredEmployees')
+      console.log(copyEmployees)
+      console.log(employees)
+      employees.value.forEach(employee => {
+        console.log(employee)
+      })
     }
 
     const clickEditEmployee = (chosenOne) => {
@@ -139,12 +184,15 @@ export default {
 
     onMounted(() => {
       fetchEmployees()
+      filteredEmployees()
     })
 
     return {
       employees,
       employee,
       fetchEmployees,
+      searchTerm,
+      // filteredEmployees,
 
       formTitle,
       displayEditForm,
@@ -165,23 +213,8 @@ export default {
 </script>
 
 <style>
-/* ::v-deep(.v-dialog .v-overlay__content) {
+/* :deep(.v-overlay__content) {
   max-height: 100%;
-}
-:deep(.v-dialog .v-overlay__content) {
-  max-height: 100%;
-}
-
-::v-deep(.v-overlay__content) {
-  max-height: 100%;
-}
-
-:deep(.v-overlay__content) {
-  max-height: 100%;
-}
-
-:deep(.v-overlay-container) {
-  left: 50px;
 } */
 
 body .v-overlay-container .v-dialog .v-overlay__content {
