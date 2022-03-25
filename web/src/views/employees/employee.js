@@ -6,8 +6,13 @@ const handleException = (response) => {
 }
 
 const getEmployees = async () => {
-  const response = await fetch('api/employees')
-  return await response.json()
+  const employees = await fetch('/api/employees')
+  return await employees.json()
+}
+
+const getEmployeeByName = async (nickname) => {
+  const employee = await fetch(`/api/employees/${nickname}`)
+  return await employee.json()
 }
 
 const createEmployee = async (employeeData) => {
@@ -41,6 +46,7 @@ const deleteEmployee = async (employeeId) => {
 
 export {
   getEmployees,
+  getEmployeeByName,
   createEmployee,
   editEmployee,
   deleteEmployee

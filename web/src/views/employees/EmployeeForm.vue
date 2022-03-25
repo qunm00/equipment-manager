@@ -38,7 +38,7 @@
           </v-col>
           <v-col cols="12">
             <v-text-field 
-              label="Full name"  
+              label="Full name"
               v-model="employeeData.fullname"
               :rules="[v => !!v || 'Fullname is required']"
               required
@@ -108,18 +108,20 @@ export default {
         setTimeout(() => { 
           displayAlert.value = false
           setData()
-        }, 3000)
+        }, 2000)
       }
     }
 
     const setData = () => {
-      const incomingData = JSON.parse(JSON.stringify(props.employee))
+      const incomingData = Object.assign({}, props.employee)
       if (incomingData.id === undefined) {
-        employeeData.value ={
+        employeeData.value = {
           'activestatus': true
         }
       } else {
-        employeeData.value = {...JSON.parse(JSON.stringify(props.employee))}
+        employeeData.value = {
+          ...incomingData
+        }
       }
     }
 

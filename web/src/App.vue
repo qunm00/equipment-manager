@@ -21,6 +21,7 @@
     app
     v-model="showNavDrawer"
   >
+    <!-- style: "z-index: 1000" -->
     <v-list>
       <v-list-item
         prepend-icon="mdi-view-dashboard"
@@ -71,3 +72,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+@media (min-width: 1264px) {
+  :deep(.v-navigation-drawer) {
+    z-index: 1000 !important;
+  }
+}
+</style>

@@ -1,18 +1,19 @@
 <template>
-<v-container>
+<v-container fluid>
   <v-row
     align="center"
     justify="end"
   >
     <v-col
       cols="12"
-      md="4"
+      md="3"
     >
       <v-text-field
-        prepend-inner-icon="mdi-magnify"
-        label="Search employees"
-        hide-details
         density="compact"
+        hide-details
+        label="Search employees"
+        prepend-inner-icon="mdi-magnify"
+        variant="underlined"
         v-model="searchTerm"
       >
       </v-text-field>
@@ -34,7 +35,7 @@
   </v-row>
 </v-container>
 
-<v-container>
+<v-container fluid>
   <v-row wrap>
     <v-col
       v-for="employee in filteredEmployees"
@@ -87,7 +88,7 @@
   </v-row>
 </v-container>
 
-<v-dialog v-model="displayEditForm" id="edit-form" style="z-index: 3000;"> 
+<v-dialog v-model="displayEditForm" id="edit-form"> 
   <EmployeeForm
     :employee="data.employee"
     :cardTitle="formTitle" 
@@ -96,7 +97,7 @@
   />
 </v-dialog>
 
-<v-dialog v-model="displayDeleteDialog" style="z-index: 3000;">
+<v-dialog v-model="displayDeleteDialog">
   <v-card>
     <v-card-title>{{`Delete employee ${data.employee.nickname}`}}</v-card-title>
     <v-card-text>
@@ -204,8 +205,9 @@ export default {
 }
 </script>
 
+<!-- bad practice -->
 <style>
-body .v-overlay-container .v-dialog .v-overlay__content {
+body .v-dialog .v-overlay__content {
   max-height: 100%;
 }
 </style>

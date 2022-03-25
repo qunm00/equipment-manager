@@ -1,0 +1,1 @@
+- form changes size when it fails to validate

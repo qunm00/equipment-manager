@@ -1,11 +1,12 @@
+import peewee
+from peewee import fn
+
 from fastapi import APIRouter, HTTPException 
 
-from typing import Optional
 from playhouse.shortcuts import model_to_dict
-from peewee import fn
-import peewee
 
 from models.employees import Employees 
+
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -17,11 +18,20 @@ class Employee(BaseModel):
     mobile: str
     email: str
 
+class EmployeeID(Employee):
+    id: int
+
 @router.get('/api/employees')
 def get_all_employees():
     employees = Employees.select().order_by(Employees.activestatus.desc(), fn.LOWER(Employees.nickname))
     employees = [model_to_dict(employee) for employee in employees]
     return employees
+
+@router.get('/api/employees/{nickname}', response_model=EmployeeID)
+def get_employee_by_nickname(nickname: str):
+    employee = Employees.get(Employees.nickname == nickname)
+    return model_to_dict(employee)
+    
 
 @router.post('/api/employees', response_model=Employee)
 def create_employee(payload_: Employee):
@@ -42,14 +52,12 @@ def create_employee(payload_: Employee):
 def edit_employee(id :int, payload_: Employee):
     try:
         payload = payload_.dict()
-        # proper?
         employee = (Employees.update( 
             activestatus = payload['activestatus'],
             nickname = payload['nickname'],
             fullname = payload['fullname'],
             mobile = payload['mobile'],
-            email = payload['email']
-        )
+            email = payload['email'])
         .where(Employees.id == id)
         .execute())
     except peewee.IntegrityError as e:
@@ -63,7 +71,8 @@ def edit_employee(id :int, payload_: Employee):
 
 @router.delete('/api/employees/{id}')
 def delete_employee(id: int):
-    print(f'deleting employee {id}')
+    # not checking id exist b/c front-end won't request non-existing id 
     employee = Employees.get_by_id(id)
     employee.delete_instance()
     print(f'successfully delete employeee {id}')
+        
