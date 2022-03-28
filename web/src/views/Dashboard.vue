@@ -7,7 +7,7 @@
     >
       <v-container>
         <v-card>
-         <v-card-title>Total devices</v-card-title>
+         <v-card-title><b>Total devices</b></v-card-title>
          <v-card-actions>
            <v-spacer></v-spacer>
            {{ equipmentCount }} devices
@@ -17,7 +17,7 @@
       </v-container>
       <v-container>
         <v-card>
-          <v-card-title>Total employees</v-card-title>
+          <v-card-title><b>Total employees</b></v-card-title>
           <v-card-actions>
             <v-spacer></v-spacer>
             {{ employeesCount }} employees
@@ -31,7 +31,7 @@
       lg="7"
     >
       <v-card>
-        <v-card-title>Available devices</v-card-title>
+        <v-card-title><b>Available devices</b></v-card-title>
           <v-container>
             <v-table>
               <thead>
