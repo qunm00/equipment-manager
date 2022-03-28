@@ -6,7 +6,7 @@
   >
     <v-col
       cols="12"
-      md="3"
+      lg="3"
     >
       <v-text-field
         density="compact"
@@ -35,7 +35,7 @@
   </v-row>
 </v-container>
 
-<v-container fluid>
+<v-container>
   <v-row wrap>
     <v-col
       v-for="employee in filteredEmployees"
@@ -101,7 +101,7 @@
   <v-card>
     <v-card-title>{{`Delete employee ${data.employee.nickname}`}}</v-card-title>
     <v-card-text>
-        <span>{{`${employee.fullname}`}}</span><br>
+        <span>{{`${data.employee.fullname}`}}</span><br>
         <span><v-icon>mdi-phone</v-icon>{{` ${data.employee.mobile}`}}</span><br>
         <span><v-icon>mdi-email</v-icon>{{` ${data.employee.email}`}}</span><br>
     </v-card-text>

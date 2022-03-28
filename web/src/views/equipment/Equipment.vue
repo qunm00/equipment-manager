@@ -6,7 +6,7 @@
   >
     <v-col
       cols="12"
-      md="3"
+      lg="3"
     >
       <v-select
         :items="data.categories"
@@ -18,7 +18,7 @@
     </v-col>
     <v-col
       cols="12"
-      md="3"
+      lg="3"
     >
       <v-select
         :items="data.employees"
@@ -31,7 +31,7 @@
     <v-spacer></v-spacer>
     <v-col
       cols="12"
-      md="3"
+      lg="3"
     >
       <v-text-field
         density="compact"
@@ -57,7 +57,7 @@
   </v-row>
 </v-container>
 
-<v-container fluid>
+<v-container>
   <v-table
   >
     <thead>
@@ -139,43 +139,57 @@
   </v-card>
 </v-dialog> 
 
+
 <v-dialog v-model="displayCategoryDialog">
-  <v-card>
-    <v-card-header>
-      <v-card-title>
-        Add a new category
-      </v-card-title>
 
-      <v-card-avatar>
-        <v-btn
-          @click="toggleCategoryDialog"
-          append-icon="mdi-window-close"
-          variant="text"
-          size="xs"
-        ></v-btn>
-      </v-card-avatar>
-    </v-card-header>
+    <v-alert
+      v-model="displayAlert"
+      closeable
+      prominent
+      type="error"
+    >
+      {{ validationMessage }}
+    </v-alert>
+    <v-container>
+    <v-card>
+      <v-card-header>
+        <v-card-title>
+          Add a new category
+        </v-card-title>
 
-    <form @submit.prevent="submitNewCategory">
-      <v-container>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              label="New category"
-              v-model="newCategory"
-              hide-details
-            >
-            </v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" align="right">
-            <v-btn type="submit">Submit</v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </form>
-  </v-card>
+        <v-card-avatar>
+          <v-btn
+            @click="toggleCategoryDialog"
+            append-icon="mdi-window-close"
+            variant="text"
+            size="xs"
+          ></v-btn>
+        </v-card-avatar>
+      </v-card-header>
+
+      <form @submit.prevent="submitNewCategory">
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-text-field
+                label="New category"
+                v-model="newCategory"
+                hide-details
+                required
+              >
+              </v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" align="right">
+              <v-btn type="submit">Submit</v-btn>
+            </v-col>
+          </v-row>
+        </v-container>
+      </form>
+    </v-card>
+  </v-container>
+
 </v-dialog>
 </template>
 
@@ -204,13 +218,16 @@ const data = reactive({
   'device': null
 })
 
-const newCategory = ref('')
+const newCategory = ref(null)
+const validationMessage = ref(null)
+const formTitle = ref(null)
 
 const fetchedCategories = ref(null)
 const fetchedEmployees = ref(null)
 
-const formTitle = ref('')
+
 const editFormFocus = ref(true)
+const displayAlert = ref(false)
 const displayEditForm = ref(false)
 const displayDeleteDialog = ref(false)
 const displayCategoryDialog = ref(false)
@@ -329,9 +346,15 @@ const submitNewCategory = async () => {
   try {
     await createCategory(newCategory.value)
     await fetchCategories()
+    newCategory.value = ''
     toggleCategoryDialog()
   } catch (error) {
-    console.log(error)
+    validationMessage.value = (await error.json()).detail
+    displayAlert.value = true
+    setTimeout(() => {
+      displayAlert.value = false
+      newCategory.value = ''
+    }, 2000)
   }
 }
 </script>

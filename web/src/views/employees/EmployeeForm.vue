@@ -3,7 +3,6 @@
   v-model="displayAlert"
   closable
   prominent
-  rounded="pill"
   type="error"
 >
   {{ validationMessage }}

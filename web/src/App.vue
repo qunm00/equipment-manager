@@ -21,7 +21,6 @@
     app
     v-model="showNavDrawer"
   >
-    <!-- style: "z-index: 1000" -->
     <v-list>
       <v-list-item
         prepend-icon="mdi-view-dashboard"
@@ -43,7 +42,7 @@
   </v-navigation-drawer>
 
   <v-main>
-    <v-container fluid>
+    <v-container>
       <router-view></router-view>
     </v-container>
   </v-main>

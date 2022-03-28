@@ -27,6 +27,11 @@ def get_all_employees():
     employees = [model_to_dict(employee) for employee in employees]
     return employees
 
+@router.get('/api/employees/count')
+def get_employees_count():
+    count = Employees.select().count()
+    return count
+
 @router.get('/api/employees/{nickname}', response_model=EmployeeID)
 def get_employee_by_nickname(nickname: str):
     employee = Employees.get(Employees.nickname == nickname)

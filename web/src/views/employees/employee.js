@@ -1,13 +1,13 @@
-const handleException = (response) => {
-  if (!response.ok) {
-    throw response
-  }
-  return response
-}
+import { handleException } from "../../utils"
 
 const getEmployees = async () => {
   const employees = await fetch('/api/employees')
   return await employees.json()
+}
+
+const getEmployeesCount = async () => {
+  const count = await fetch('/api/employees/count')
+  return await count.json()
 }
 
 const getEmployeeByName = async (nickname) => {
@@ -47,6 +47,7 @@ const deleteEmployee = async (employeeId) => {
 export {
   getEmployees,
   getEmployeeByName,
+  getEmployeesCount,
   createEmployee,
   editEmployee,
   deleteEmployee
