@@ -78,6 +78,5 @@ def update_equipment(id: int, payload_: Device):
 @router.delete('/api/equipment/{id}')
 def delete_equipment(id: int):
     device = Equipment.get_by_id(id)
-    print(device.employee)
     device.delete_instance()
         
