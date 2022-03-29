@@ -73,66 +73,53 @@
 </v-container>
 </template>
 
-<script>
+<script setup>
 import { onMounted, ref } from 'vue'
 import { createEmployee, editEmployee } from './employee'
 
-export default {
-  props: ['employee', 'cardTitle'],
-  emits: ['closeDialog', 'eventSubmitEmployeeForm'],
+const props = defineProps(['employee', 'cardTitle'])
+const emits = defineEmits(['closeDialog', 'eventSubmitEmployeeForm'])
 
-  setup(props, context) {
-    const employeeData = ref({})
-    const valid = ref(false)
-    const formRef = ref(null)
-    const displayAlert = ref(false)
-    const validationMessage = ref('')
+const employeeData = ref({})
+const valid = ref(false)
+const formRef = ref(null)
+const displayAlert = ref(false)
+const validationMessage = ref('')
 
-    onMounted(() => {
+onMounted(() => {
+  setData()
+})
+
+const onSubmit = async () => {
+  try {
+    if (employeeData.value.id === undefined) {
+      await createEmployee(employeeData.value)
+    } else {
+      await editEmployee(props.employee.id, employeeData.value)
+    }
+    emits('closeDialog')
+    emits('eventSubmitEmployeeForm')
+  } catch (error) {
+    validationMessage.value = (await error.json()).detail
+    displayAlert.value = true 
+    setTimeout(() => { 
+      displayAlert.value = false
       setData()
-    })
+    }, 2000)
+  }
+}
 
-    const onSubmit = async () => {
-      try {
-        if (employeeData.value.id === undefined) {
-          await createEmployee(employeeData.value)
-        } else {
-          await editEmployee(props.employee.id, employeeData.value)
-        }
-        context.emit('closeDialog')
-        context.emit('eventSubmitEmployeeForm')
-      } catch (error) {
-        validationMessage.value = (await error.json()).detail
-        displayAlert.value = true 
-        setTimeout(() => { 
-          displayAlert.value = false
-          // setData()
-        }, 2000)
-      }
+const setData = () => {
+  const incomingData = Object.assign({}, props.employee)
+  if (incomingData.id === undefined) {
+    employeeData.value = {
+      'activestatus': true
     }
-
-    const setData = () => {
-      const incomingData = Object.assign({}, props.employee)
-      if (incomingData.id === undefined) {
-        employeeData.value = {
-          'activestatus': true
-        }
-      } else {
-        employeeData.value = {
-          ...incomingData
-        }
-      }
+  } else {
+    employeeData.value = {
+      ...incomingData
     }
-
-    return {
-      employeeData,
-      onSubmit,
-      formRef,
-      valid,
-      displayAlert,
-      validationMessage
-    }
-  },
+  }
 }
 </script>
 

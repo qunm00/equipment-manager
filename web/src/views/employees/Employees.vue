@@ -124,90 +124,64 @@
 </template>
 
 
-<script>
+<script setup>
 import { onMounted, computed, ref, reactive } from 'vue'
 import EmployeeForm from './EmployeeForm.vue'
 import { getEmployees, deleteEmployee, filterEmployees } from './employee'
 import { toggler } from '../../utils'
 
-export default {
-  setup() {
-    const data = reactive({
-      'employees': [],
-      'employee': null
-    })
-    const displayAlert = ref(false)
-    const alertMessage = ref(null)
-    const displayEditForm = ref(false)
-    const displayDeleteDialog = ref(false)
-    const formTitle = ref('')
-    const searchTerm = ref('')
+const data = reactive({
+  'employees': [],
+  'employee': null
+})
+const displayAlert = ref(false)
+const alertMessage = ref(null)
+const displayEditForm = ref(false)
+const displayDeleteDialog = ref(false)
+const formTitle = ref('')
+const searchTerm = ref('')
 
 
-    const fetchEmployees = async () => {
-      try {
-        data.employees = await getEmployees()
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    const filteredEmployees = computed(() => {
-      return filterEmployees(data.employees, searchTerm.value.toLowerCase())
-    })
-
-    const clickEditEmployee = (chosenOne) => {
-      formTitle.value = chosenOne.id ? `Edit ${chosenOne.nickname} information` : 'Add a new employee'
-      data.employee = chosenOne 
-      toggler(displayEditForm)
-    }
-
-    const clickDeleteEmployee = (chosenOne) => {
-      data.employee = chosenOne
-      toggler(displayDeleteDialog)
-    }
-
-    const confirmDeleteEmployee = async () => {
-      try {
-        await deleteEmployee(data.employee.id)
-        await fetchEmployees()
-        toggler(displayDeleteDialog)
-      } catch (error) {
-        alertMessage.value = (await error.json()).detail
-        displayAlert.value = true
-        setTimeout(() => {
-          displayAlert.value = false
-        }, 2000)
-      }
-    }
-
-    onMounted(() => {
-      fetchEmployees()
-    })
-
-    return {
-      data,
-      displayAlert,
-      alertMessage,
-
-      fetchEmployees,
-      searchTerm,
-      filteredEmployees,
-
-      formTitle,
-      clickEditEmployee,
-      displayEditForm,
-
-      clickDeleteEmployee,
-      displayDeleteDialog,
-      confirmDeleteEmployee
-    };
-  },
-
-  components: { 
-    EmployeeForm
+const fetchEmployees = async () => {
+  try {
+    data.employees = await getEmployees()
+  } catch (error) {
+    console.log(error)
   }
 }
+
+const filteredEmployees = computed(() => {
+  return filterEmployees(data.employees, searchTerm.value.toLowerCase())
+})
+
+const clickEditEmployee = (chosenOne) => {
+  formTitle.value = chosenOne.id ? `Edit ${chosenOne.nickname} information` : 'Add a new employee'
+  data.employee = chosenOne 
+  toggler(displayEditForm)
+}
+
+const clickDeleteEmployee = (chosenOne) => {
+  data.employee = chosenOne
+  toggler(displayDeleteDialog)
+}
+
+const confirmDeleteEmployee = async () => {
+  try {
+    await deleteEmployee(data.employee.id)
+    await fetchEmployees()
+    toggler(displayDeleteDialog)
+  } catch (error) {
+    alertMessage.value = (await error.json()).detail
+    displayAlert.value = true
+    setTimeout(() => {
+      displayAlert.value = false
+    }, 2000)
+  }
+}
+
+onMounted(() => {
+  fetchEmployees()
+})
 </script>
 
 <style>
