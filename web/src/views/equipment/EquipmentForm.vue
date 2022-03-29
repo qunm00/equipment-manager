@@ -77,7 +77,6 @@
 </template>
 
 <script setup>
-import Alert from '../../components/Alert.vue'
 import { onMounted, ref } from 'vue'
 import { 
   createDevice, 
