@@ -43,27 +43,43 @@ const deleteDevice = async (deviceID) => {
   })
 }
 
-const getCategories = async () => {
-  const categories = await fetch('/api/categories')
-  return await categories.json()
-}
+const filterEquipment = (
+  equipment,
+  selectedCategory,
+  selectedEmployee, 
+  selectedSerialNumber
+) => {
+  const matchedCategory = new Set(equipment.filter(device => {
+    if (selectedCategory === undefined) {
+      return device
+    } else {
+      return device.category.category === selectedCategory
+    }
+  }))
 
-const getCategoryByName = async (category) => {
-  const categories = await fetch(`/api/categories/${category}`)
-  return await categories.json()
-}
+  const matchedEmployee = new Set(equipment.filter(device => {
+    if (selectedEmployee === undefined) {
+      return device
+    } else {
+      if (device.employee !== null) {
+        return device.employee.nickname === selectedEmployee
+      }
+    }
+  }))
 
-const createCategory = async (newCategory) => {
-  const response = await fetch('/api/categories', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      'category': newCategory
-    })
-  })
-  return handleException(response)
+  const matchedSerialNumber = new Set(equipment.filter(device => {
+    if (selectedSerialNumber === '') {
+      return device
+    } else {
+      return device.serialnumber.toLowerCase().includes(selectedSerialNumber.toLowerCase())
+    }
+  }))
+
+  const result = new Set([...matchedCategory]
+    .filter(device => matchedEmployee.has(device))
+    .filter(device => matchedSerialNumber.has(device)))
+
+  return result
 }
 
 export {
@@ -73,7 +89,5 @@ export {
   createDevice,
   editDevice,
   deleteDevice,
-  getCategories,
-  getCategoryByName,
-  createCategory
+  filterEquipment
 }

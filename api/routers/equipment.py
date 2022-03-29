@@ -50,6 +50,7 @@ def get_availability_count():
 def create_equipment(payload_: Device):
     try:
         payload = payload_.dict()
+        payload['serialnumber'] = payload['serialnumber'].lower().strip()
         device = Equipment.create(**payload)
         return model_to_dict(device)
     except peewee.IntegrityError as e:
@@ -62,7 +63,7 @@ def update_equipment(id: int, payload_: Device):
     try:
         payload = payload_.dict()
         device = (Equipment.update(
-            serialnumber = payload['serialnumber'],
+            serialnumber = payload['serialnumber'].lower().strip(),
             name = payload['name'],
             category = payload['category'],
             employee = payload['employee'])
@@ -77,4 +78,6 @@ def update_equipment(id: int, payload_: Device):
 @router.delete('/api/equipment/{id}')
 def delete_equipment(id: int):
     device = Equipment.get_by_id(id)
+    print(device.employee)
     device.delete_instance()
+        

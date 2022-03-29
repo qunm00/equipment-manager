@@ -106,7 +106,7 @@ export default {
         displayAlert.value = true 
         setTimeout(() => { 
           displayAlert.value = false
-          setData()
+          // setData()
         }, 2000)
       }
     }

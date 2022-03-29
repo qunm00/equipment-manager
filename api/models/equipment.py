@@ -13,8 +13,8 @@ class Equipment(PeeWeeBaseModel):
         name TEXT NOT NULL,
         category_id INT,
         employee_id INT NOT NULL,
-        FOREIGN KEY (category) references categories(id),
-        FOREIGN KEY (employee) references employees(id)
+        FOREIGN KEY (category_id) references categories(id),
+        FOREIGN KEY (employee_id) references employees(id)
     )
     """
     id = p.PrimaryKeyField()

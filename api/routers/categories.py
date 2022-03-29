@@ -31,6 +31,7 @@ def get_by_category(category: str):
 def create_category(payload_: Category):
     try: 
         payload = payload_.dict()
+        payload['category'] = payload['category'].lower().strip()
         category = Categories.create(**payload)
         return model_to_dict(category)       
     except peewee.IntegrityError as e:

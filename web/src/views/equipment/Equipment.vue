@@ -119,7 +119,7 @@
     :fetchedCategories="fetchedCategories"
     :fetchedEmployees="fetchedEmployees"
     :cardTitle="formTitle"
-    @closeDialog="toggleEditDialog"
+    @closeDialog="displayEditForm = !displayEditForm"
     @openAddCategory="toggleCategoryDialog"
     @eventSubmitDeviceForm="fetchEquipment"
   />
@@ -134,7 +134,7 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn @click="confirmDeleteDevice">Yes</v-btn>
-      <v-btn @click="toggleDeleteDialog">No</v-btn>
+      <v-btn @click="displayDeleteDialog = !displayDeleteDialog">No</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog> 
@@ -201,13 +201,24 @@ import {
   computed
 } from 'vue'
 
+import {
+  toggler
+} from '../../utils'
+
 import { 
   getEquipment, 
   deleteDevice, 
+  filterEquipment
+
+} from './equipment'
+
+import {
   getCategories, 
   createCategory 
-} from './equipment'
+} from './category'
+
 import { getEmployees } from '../employees/employee'
+
 
 import EquipmentForm from './EquipmentForm.vue'
 
@@ -224,7 +235,6 @@ const formTitle = ref(null)
 
 const fetchedCategories = ref(null)
 const fetchedEmployees = ref(null)
-
 
 const editFormFocus = ref(true)
 const displayAlert = ref(false)
@@ -251,36 +261,12 @@ const fetchEquipment = async () => {
 }
 
 const filteredEquipment = computed(() => {
-  const matchedCategory = new Set(data.equipment.filter(device => {
-    if (toolbarCategory.value === undefined) {
-      return device
-    } else {
-      return device.category.category === toolbarCategory.value
-    }
-  }))
-
-  const matchedSerialNumber = new Set(data.equipment.filter(device => {
-    if (toolbarSerialNumber.value === '') {
-      return device
-    } else {
-      return device.serialnumber.includes(toolbarSerialNumber.value)
-    }
-  }))
-
-  const matchedEmployee = new Set(data.equipment.filter(device => {
-    if (toolbarEmployee.value === undefined) {
-      return device
-    } else {
-      if (device.employee !== null) {
-        return device.employee.nickname === toolbarEmployee.value
-      }
-    }
-  }))
-
-  const result = new Set([...matchedCategory]
-    .filter(device => matchedSerialNumber.has(device))
-    .filter(device => matchedEmployee.has(device)))
-  return result
+  return filterEquipment(
+    data.equipment, 
+    toolbarCategory.value, 
+    toolbarEmployee.value, 
+    toolbarSerialNumber.value
+  )
 })
 
 const fetchCategories = async () => {
@@ -300,7 +286,7 @@ const fetchEmployees = async () => {
   try {
     fetchedEmployees.value = await getEmployees()
     fetchedEmployees.value.forEach(employee => {
-      if (!data.employees.includes(employee.nickname)) {
+      if (!data.employees.includes(employee.nickname) && employee.activestatus) {
         data.employees.push(employee.nickname)
       }
     })
@@ -311,29 +297,21 @@ const fetchEmployees = async () => {
 
 const clickEditDevice = (chosenOne) => {
   formTitle.value = chosenOne.id 
-    ? `Edit ${chosenOne.name} ${chosenOne.serialnumber}` 
+    ? `Edit ${chosenOne.name} ${chosenOne.serialnumber}`
     : 'Add a new device'
   data.device = chosenOne
-  toggleEditDialog()
-}
-
-const toggleEditDialog = () => {
-  displayEditForm.value = !displayEditForm.value
+  toggler(displayEditForm)
 }
 
 const clickDeleteDevice = (chosenOne) => {
   data.device = chosenOne 
-  toggleDeleteDialog()
-}
-
-const toggleDeleteDialog = () => {
-  displayDeleteDialog.value = !displayDeleteDialog.value
+  toggler(displayDeleteDialog)
 }
 
 const confirmDeleteDevice = async () => {
   await deleteDevice(data.device.id)
   await fetchEquipment()
-  toggleDeleteDialog()
+  toggler(displayDeleteDialog)
 }
 
 const toggleCategoryDialog = () => {
@@ -347,7 +325,7 @@ const submitNewCategory = async () => {
     await createCategory(newCategory.value)
     await fetchCategories()
     newCategory.value = ''
-    toggleCategoryDialog()
+    toggler(displayCategoryDialog)
   } catch (error) {
     validationMessage.value = (await error.json()).detail
     displayAlert.value = true

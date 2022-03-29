@@ -77,12 +77,18 @@
 </template>
 
 <script setup>
+import Alert from '../../components/Alert.vue'
 import { onMounted, ref } from 'vue'
 import { 
   createDevice, 
   editDevice, 
-  getCategoryByName
+
 } from './equipment'
+
+import {
+  getCategoryByName
+} from './category'
+
 import {
   getEmployeeByName
 } from '../employees/employee'
