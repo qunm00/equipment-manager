@@ -39,8 +39,21 @@ const editEmployee = async (employeeId, employeeData) => {
 }
 
 const deleteEmployee = async (employeeId) => {
-  await fetch(`/api/employees/${employeeId}`, {
+  const response = await fetch(`/api/employees/${employeeId}`, {
     method: 'DELETE',
+  })
+  return handleException(response)
+}
+
+const filterEmployees = (employees, searchTerm) => {
+  if (searchTerm.length === 0) {
+    return employees
+  }
+  return employees.filter(employee => {
+    return employee.email.toLowerCase().includes(searchTerm)
+      || employee.fullname.toLowerCase().includes(searchTerm)
+      || employee.mobile.toLowerCase().includes(searchTerm)
+      || employee.nickname.toLowerCase().includes(searchTerm)
   })
 }
 
@@ -50,5 +63,6 @@ export {
   getEmployeesCount,
   createEmployee,
   editEmployee,
-  deleteEmployee
+  deleteEmployee,
+  filterEmployees
 }

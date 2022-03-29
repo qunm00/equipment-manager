@@ -71,15 +71,15 @@
             color="success"
             @click="clickEditEmployee(employee)"
             id="edit-button"
+            prepend-icon="mdi-pencil"
           >
-            <v-icon>mdi-pencil</v-icon>
             Edit
           </v-btn>
           <v-btn
             color="error"
             @click="clickDeleteEmployee(employee)"
+            prepend-icon="mdi-delete"
           >
-            <v-icon>mdi-delete</v-icon>
             Delete
           </v-btn>
         </v-card-actions>
@@ -93,23 +93,33 @@
     :employee="data.employee"
     :cardTitle="formTitle" 
     @eventSubmitEmployeeForm="fetchEmployees"
-    @closeDialog="toggleEditDialog"
+    @closeDialog="displayEditForm = !displayEditForm"
   />
 </v-dialog>
 
 <v-dialog v-model="displayDeleteDialog">
-  <v-card>
-    <v-card-title>{{`Delete employee ${data.employee.nickname}`}}</v-card-title>
-    <v-card-text>
-        <span>{{`${data.employee.fullname}`}}</span><br>
-        <span><v-icon>mdi-phone</v-icon>{{` ${data.employee.mobile}`}}</span><br>
-        <span><v-icon>mdi-email</v-icon>{{` ${data.employee.email}`}}</span><br>
-    </v-card-text>
-    <v-card-actions>
-      <v-btn @click="confirmDeleteEmployee">Yes</v-btn>
-      <v-btn @click="toggleDeleteDialog">No</v-btn>
-    </v-card-actions>
-  </v-card>
+  <v-alert
+    v-model="displayAlert"
+    closable
+    prominent
+    type="error"
+  >
+    {{ alertMessage }}
+  </v-alert>
+  <v-container>
+    <v-card>
+      <v-card-title>{{`Delete employee ${data.employee.nickname}`}}</v-card-title>
+      <v-card-text>
+          <span>{{`${data.employee.fullname}`}}</span><br>
+          <span><v-icon>mdi-phone</v-icon>{{` ${data.employee.mobile}`}}</span><br>
+          <span><v-icon>mdi-email</v-icon>{{` ${data.employee.email}`}}</span><br>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="confirmDeleteEmployee">Yes</v-btn>
+        <v-btn @click="displayDeleteDialog = !displayDeleteDialog">No</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-container>
 </v-dialog>
 </template>
 
@@ -117,7 +127,8 @@
 <script>
 import { onMounted, computed, ref, reactive } from 'vue'
 import EmployeeForm from './EmployeeForm.vue'
-import { getEmployees, deleteEmployee } from './employee'
+import { getEmployees, deleteEmployee, filterEmployees } from './employee'
+import { toggler } from '../../utils'
 
 export default {
   setup() {
@@ -125,6 +136,8 @@ export default {
       'employees': [],
       'employee': null
     })
+    const displayAlert = ref(false)
+    const alertMessage = ref(null)
     const displayEditForm = ref(false)
     const displayDeleteDialog = ref(false)
     const formTitle = ref('')
@@ -140,40 +153,32 @@ export default {
     }
 
     const filteredEmployees = computed(() => {
-      if (searchTerm.value.length === 0) {
-        return data.employees
-      }
-      return data.employees.filter(employee => {
-        return employee.email.includes(searchTerm.value)
-          || employee.fullname.includes(searchTerm.value)
-          || employee.mobile.includes(searchTerm.value)
-          || employee.nickname.includes(searchTerm.value)
-      })
+      return filterEmployees(data.employees, searchTerm.value.toLowerCase())
     })
-
-    const toggleEditDialog = () => {
-      displayEditForm.value = !displayEditForm.value
-    }
 
     const clickEditEmployee = (chosenOne) => {
       formTitle.value = chosenOne.id ? `Edit ${chosenOne.nickname} information` : 'Add a new employee'
       data.employee = chosenOne 
-      toggleEditDialog()
-    }
-
-    const toggleDeleteDialog = () => {
-      displayDeleteDialog.value = !displayDeleteDialog.value
+      toggler(displayEditForm)
     }
 
     const clickDeleteEmployee = (chosenOne) => {
       data.employee = chosenOne
-      toggleDeleteDialog()
+      toggler(displayDeleteDialog)
     }
 
     const confirmDeleteEmployee = async () => {
-      await deleteEmployee(data.employee.id)
-      await fetchEmployees()
-      toggleDeleteDialog()
+      try {
+        await deleteEmployee(data.employee.id)
+        await fetchEmployees()
+        toggler(displayDeleteDialog)
+      } catch (error) {
+        alertMessage.value = (await error.json()).detail
+        displayAlert.value = true
+        setTimeout(() => {
+          displayAlert.value = false
+        }, 2000)
+      }
     }
 
     onMounted(() => {
@@ -182,6 +187,8 @@ export default {
 
     return {
       data,
+      displayAlert,
+      alertMessage,
 
       fetchEmployees,
       searchTerm,
@@ -190,11 +197,9 @@ export default {
       formTitle,
       clickEditEmployee,
       displayEditForm,
-      toggleEditDialog,
 
       clickDeleteEmployee,
       displayDeleteDialog,
-      toggleDeleteDialog,
       confirmDeleteEmployee
     };
   },
@@ -205,7 +210,6 @@ export default {
 }
 </script>
 
-<!-- bad practice -->
 <style>
 body .v-dialog .v-overlay__content {
   max-height: 100%;

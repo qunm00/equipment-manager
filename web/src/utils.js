@@ -5,6 +5,12 @@ const handleException = (response) => {
   return response
 }
 
-export {
-  handleException
+const toggler = (reactiveVar) => {
+  reactiveVar.value = !reactiveVar.value
 }
+
+export {
+  handleException,
+  toggler
+}
+

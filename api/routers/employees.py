@@ -42,6 +42,7 @@ def get_employee_by_nickname(nickname: str):
 def create_employee(payload_: Employee):
     try:
         payload = payload_.dict()
+        payload['nickname'] = payload['nickname'].lower().strip()
         employee = Employees.create(**payload)
         return model_to_dict(employee)
     except peewee.IntegrityError as e:
@@ -59,7 +60,7 @@ def edit_employee(id :int, payload_: Employee):
         payload = payload_.dict()
         employee = (Employees.update( 
             activestatus = payload['activestatus'],
-            nickname = payload['nickname'],
+            nickname = payload['nickname'].lower().strip(),
             fullname = payload['fullname'],
             mobile = payload['mobile'],
             email = payload['email'])
@@ -76,8 +77,12 @@ def edit_employee(id :int, payload_: Employee):
 
 @router.delete('/api/employees/{id}')
 def delete_employee(id: int):
-    # not checking id exist b/c front-end won't request non-existing id 
-    employee = Employees.get_by_id(id)
-    employee.delete_instance()
-    print(f'successfully delete employeee {id}')
+    try:
+        employee = Employees.get_by_id(id)
+        employee.delete_instance()
+    except peewee.IntegrityError as e:
+        error_message = str(e)
+        if 'equipment_employee_id_fkey' in error_message:
+            raise HTTPException(status_code=400, detail=f'{employee.nickname} is borrowing something')
+        
         
