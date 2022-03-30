@@ -48,32 +48,33 @@ def get_availability_count():
 
 @router.post('/api/equipment')
 def create_equipment(payload_: Device):
-    try:
-        payload = payload_.dict()
-        payload['serialnumber'] = payload['serialnumber'].lower().strip()
+    payload = payload_.dict()
+    formatted_serialnumber = payload['serialnumber'].strip().upper()
+    exist = Equipment.select().where(Equipment.serialnumber == formatted_serialnumber).exists()
+    if exist:
+        raise HTTPException(status_code=400, detail='Equipment serial number already exists')
+    else:
+        payload['serialnumber'] = formatted_serialnumber 
         device = Equipment.create(**payload)
-        return model_to_dict(device)
-    except peewee.IntegrityError as e:
-        error_message = str(e)
-        if 'equipment_serialnumber_key' in error_message:
-            raise HTTPException(status_code=400, detail='Equipment serial number already exists')
+        return model_to_dict(device)       
 
 @router.patch('/api/equipment/{id}')
 def update_equipment(id: int, payload_: Device):
-    try:
-        payload = payload_.dict()
-        device = (Equipment.update(
-            serialnumber = payload['serialnumber'].lower().strip(),
+    payload = payload_.dict()
+    formatted_serialnumber = payload['serialnumber'].strip().upper()
+    exist = Equipment.select().where(Equipment.serialnumber == formatted_serialnumber).exists()
+    selected_device = Equipment.get_by_id(id)
+    if exist and selected_device.serialnumber != formatted_serialnumber:
+        raise HTTPException(status_code=400, detail='Equipment serial number already exists')
+    else:
+        payload['serialnumber'] = formatted_serialnumber
+        (Equipment.update(
+            serialnumber = payload['serialnumber'],
             name = payload['name'],
             category = payload['category'],
             employee = payload['employee'])
         .where(Equipment.id == id)
-        .execute())
-    except peewee.IntegrityError as e:
-        error_message = str(e)
-        if 'equipment_serialnumber_key' in error_message:
-            raise HTTPException(status_code=400, detail='Equipment serial number already exists')
-        
+        .execute())       
 
 @router.delete('/api/equipment/{id}')
 def delete_equipment(id: int):
