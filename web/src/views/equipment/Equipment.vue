@@ -1,5 +1,5 @@
 <template>
-<v-container fluid>
+<v-container>
   <v-row
     align="center"
     justify="space-between"
@@ -120,76 +120,30 @@
     :fetchedEmployees="fetchedEmployees"
     :cardTitle="formTitle"
     @closeDialog="displayEditForm = !displayEditForm"
-    @openAddCategory="toggleCategoryDialog"
+    @openAddCategory="displayCategoryDialog = !displayCategoryDialog; editFormFocus = !editFormFocus"
     @eventSubmitDeviceForm="fetchEquipment"
   />
 </v-dialog>
 
 <v-dialog v-model="displayDeleteDialog">
-  <v-card>
+  <DeleteDialog
+    @confirmDelete="confirmDeleteDevice"
+    @closeDeleteDialog="displayDeleteDialog = !displayDeleteDialog"
+  >
     <v-card-title>Delete device</v-card-title>
     <v-card-text>Device: <b>{{data.device.name}}</b></v-card-text>
     <v-card-text>Serial number: <b>{{data.device.serialnumber}}</b></v-card-text>
-    
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn @click="confirmDeleteDevice">Yes</v-btn>
-      <v-btn @click="displayDeleteDialog = !displayDeleteDialog">No</v-btn>
-    </v-card-actions>
-  </v-card>
+  </DeleteDialog>
 </v-dialog> 
 
 
 <v-dialog v-model="displayCategoryDialog">
-
-    <v-alert
-      v-model="displayAlert"
-      closeable
-      prominent
-      type="error"
-    >
-      {{ validationMessage }}
-    </v-alert>
-    <v-container>
-    <v-card>
-      <v-card-header>
-        <v-card-title>
-          Add a new category
-        </v-card-title>
-
-        <v-card-avatar>
-          <v-btn
-            @click="toggleCategoryDialog"
-            append-icon="mdi-window-close"
-            variant="text"
-            size="xs"
-          ></v-btn>
-        </v-card-avatar>
-      </v-card-header>
-
-      <form @submit.prevent="submitNewCategory">
-        <v-container>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                label="New category"
-                v-model="newCategory"
-                hide-details
-                required
-              >
-              </v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12" align="right">
-              <v-btn type="submit">Submit</v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
-      </form>
-    </v-card>
-  </v-container>
-
+  <CategoryForm
+    @fetchCategories="fetchCategories"
+    @closeCategoryDialog="displayCategoryDialog = !displayCategoryDialog"
+    @focusEditForm="editFormFocus = !editFormFocus"
+  >
+  </CategoryForm>
 </v-dialog>
 </template>
 
@@ -200,6 +154,10 @@ import {
   onMounted,
   computed
 } from 'vue'
+
+import EquipmentForm from './EquipmentForm.vue'
+import CategoryForm from './CategoryForm.vue';
+import DeleteDialog from '../../components/DeleteDialog.vue';
 
 import {
   toggler
@@ -214,13 +172,9 @@ import {
 
 import {
   getCategories, 
-  createCategory 
 } from './category'
 
 import { getEmployees } from '../employees/employee'
-
-
-import EquipmentForm from './EquipmentForm.vue'
 
 const data = reactive({
   'equipment': [],
@@ -229,15 +183,13 @@ const data = reactive({
   'device': null
 })
 
-const newCategory = ref(null)
-const validationMessage = ref(null)
+
 const formTitle = ref(null)
 
 const fetchedCategories = ref(null)
 const fetchedEmployees = ref(null)
 
 const editFormFocus = ref(true)
-const displayAlert = ref(false)
 const displayEditForm = ref(false)
 const displayDeleteDialog = ref(false)
 const displayCategoryDialog = ref(false)
@@ -312,28 +264,6 @@ const confirmDeleteDevice = async () => {
   await deleteDevice(data.device.id)
   await fetchEquipment()
   toggler(displayDeleteDialog)
-}
-
-const toggleCategoryDialog = () => {
-  displayCategoryDialog.value = !displayCategoryDialog.value
-  editFormFocus.value = !editFormFocus.value
-}
-
-const submitNewCategory = async () => {
-  console.log('submitting new category')
-  try {
-    await createCategory(newCategory.value)
-    await fetchCategories()
-    newCategory.value = ''
-    toggler(displayCategoryDialog)
-  } catch (error) {
-    validationMessage.value = (await error.json()).detail
-    displayAlert.value = true
-    setTimeout(() => {
-      displayAlert.value = false
-      newCategory.value = ''
-    }, 2000)
-  }
 }
 </script>
 

@@ -29,13 +29,11 @@ def get_by_category(category: str):
 
 @router.post('/api/categories', response_model=Category)
 def create_category(payload_: Category):
-    try: 
-        payload = payload_.dict()
-        payload['category'] = payload['category'].lower().strip()
+    payload = payload_.dict()
+    exist = Categories.select().where(Categories.category == payload['category'].lower().strip().capitalize()).exists()
+    if (exist):
+        raise HTTPException(status_code=400, detail='Category already exists')
+    else:
+        payload['category'] = payload['category'].lower().strip().capitalize()
         category = Categories.create(**payload)
-        return model_to_dict(category)       
-    except peewee.IntegrityError as e:
-        error_message = str(e)
-        print(error_message)
-        if 'categories_category_key' in error_message:
-            raise HTTPException(status_code=400, detail='Category already exists')
+        return model_to_dict(category)              

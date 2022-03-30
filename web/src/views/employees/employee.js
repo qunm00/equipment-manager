@@ -16,6 +16,7 @@ const getEmployeeByName = async (nickname) => {
 }
 
 const createEmployee = async (employeeData) => {
+  console.log(employeeData)
   const response = await fetch('/api/employees', {
     method: 'POST',
     headers: {

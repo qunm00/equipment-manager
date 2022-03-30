@@ -42,34 +42,41 @@ def get_employee_by_nickname(nickname: str):
 def create_employee(payload_: Employee):
     try:
         payload = payload_.dict()
-        payload['nickname'] = payload['nickname'].lower().strip()
-        employee = Employees.create(**payload)
-        return model_to_dict(employee)
+        formatted_nickname = payload['nickname'].lower().strip()
+        exist = Employees.select().where(fn.LOWER(Employees.nickname) == formatted_nickname).exists()
+        if exist:
+            raise HTTPException(status_code=400, detail='nickname already exists')
+        else:
+            employee = Employees.create(**payload)
+            return model_to_dict(employee)           
     except peewee.IntegrityError as e:
         error_message = str(e)
-        if 'employees_nickname_key' in error_message:
-            raise HTTPException(status_code=400, detail='nickname already exists')
         if 'employees_email_key' in error_message:
             raise HTTPException(status_code=400, detail='email already exists')
         if 'employees_mobile_key' in error_message:
             raise HTTPException(status_code=400, detail='mobile number already exists')
+        
 
 @router.patch('/api/employees/{id}')
 def edit_employee(id :int, payload_: Employee):
     try:
         payload = payload_.dict()
-        employee = (Employees.update( 
-            activestatus = payload['activestatus'],
-            nickname = payload['nickname'].lower().strip(),
-            fullname = payload['fullname'],
-            mobile = payload['mobile'],
-            email = payload['email'])
-        .where(Employees.id == id)
-        .execute())
+        formatted_nickname = payload['nickname'].lower().strip()
+        exist = Employees.select().where(fn.LOWER(Employees.nickname) == formatted_nickname).exists()
+        selected_employee = Employees.get_by_id(id)
+        if exist and selected_employee.nickname != formatted_nickname:
+            raise HTTPException(status_code=400, detail='nickname already exists')
+        else:
+            (Employees.update( 
+                activestatus = payload['activestatus'],
+                nickname = payload['nickname'],
+                fullname = payload['fullname'],
+                mobile = payload['mobile'],
+                email = payload['email'])
+            .where(Employees.id == id)
+            .execute())
     except peewee.IntegrityError as e:
         error_message = str(e)
-        if 'employees_nickname_key' in error_message:
-            raise HTTPException(status_code=400, detail='nickname already exists')
         if 'employees_email_key' in error_message:
             raise HTTPException(status_code=400, detail='email already exists')
         if 'employees_mobile_key' in error_message:

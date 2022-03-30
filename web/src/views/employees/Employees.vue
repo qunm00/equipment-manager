@@ -1,5 +1,5 @@
 <template>
-<v-container fluid>
+<v-container>
   <v-row
     align="center"
     justify="end"
@@ -98,27 +98,21 @@
 </v-dialog>
 
 <v-dialog v-model="displayDeleteDialog">
-  <v-alert
-    v-model="displayAlert"
-    closable
-    prominent
-    type="error"
-  >
+  <Alert :displayAlert="displayAlert">
     {{ alertMessage }}
-  </v-alert>
+  </Alert>
   <v-container>
-    <v-card>
+    <DeleteDialog
+      @confirmDelete="confirmDeleteEmployee"
+      @closeDeleteDialog="displayDeleteDialog = !displayDeleteDialog"
+    >
       <v-card-title>{{`Delete employee ${data.employee.nickname}`}}</v-card-title>
       <v-card-text>
           <span>{{`${data.employee.fullname}`}}</span><br>
           <span><v-icon>mdi-phone</v-icon>{{` ${data.employee.mobile}`}}</span><br>
           <span><v-icon>mdi-email</v-icon>{{` ${data.employee.email}`}}</span><br>
       </v-card-text>
-      <v-card-actions>
-        <v-btn @click="confirmDeleteEmployee">Yes</v-btn>
-        <v-btn @click="displayDeleteDialog = !displayDeleteDialog">No</v-btn>
-      </v-card-actions>
-    </v-card>
+    </DeleteDialog>
   </v-container>
 </v-dialog>
 </template>
@@ -126,7 +120,9 @@
 
 <script setup>
 import { onMounted, computed, ref, reactive } from 'vue'
+import Alert from '../../components/Alert.vue'
 import EmployeeForm from './EmployeeForm.vue'
+import DeleteDialog from '../../components/DeleteDialog.vue';
 import { getEmployees, deleteEmployee, filterEmployees } from './employee'
 import { toggler } from '../../utils'
 
